@@ -4,4 +4,26 @@ version = "0.0.1"
 description = "A Python library for working with DSE triples in a polars dataframe."
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "polars>=1.38.1"
+    ]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dse_polars"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+python_files = ["test_*.py"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

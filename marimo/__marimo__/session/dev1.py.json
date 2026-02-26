@@ -1,0 +1,424 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.20.2"
+  },
+  "cells": [
+    {
+      "id": "MJUe",
+      "code_hash": "7da22c273c76e9486c8025f2bc29ea6e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"polars-basics-with-dse-data\">Polars basics with DSE data</h1></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ofQa",
+      "code_hash": "679a9d54e2ced8e8249d5b3fcefccb59",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"essential-imports\">Essential imports</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "ce4194fff5fe8b0eebb7a09769bc0473",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "672361988c511c544718cf51ee9b94b5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"create-a-dse-object\">Create a DSE object</h2>\n<span class=\"paragraph\">Create a DSE object from a dataframe with required schema (columns <code>image</code>, <code>passage</code> and <code>surface</code>):</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "1d03c75d0d329635892e94bb2fbd5906",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "e2be2a3b23da945666792caad3a2db57",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "b6a2734c4f31f222240995abedacbc00",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"inventory-of-contents\">Inventory of contents</h2>\n<span class=\"paragraph\">Get URN-aware inventory of unique surfaces, images and texts:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "b8147212ad9a7f3c6f3eae1931d96a74",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='Xref-0' random-id='0a0bc70f-5bf1-6a23-338d-470a10aa0f8b'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;passage&#92;&quot;:null},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:&#92;&quot;}]&quot;' data-total-rows='2' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;passage&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "8037b097414a790d6739c7699d719019",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='SFPL-0' random-id='e058c5fd-d7f5-58c6-a4f9-94d2a88e2b75'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p63&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p25&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p81&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p91&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p70&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1a_p6&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p24&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1a_p27&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1a_p26&#92;&quot;},{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1a_p13&#92;&quot;}]&quot;' data-total-rows='116' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;image&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "0621da254b0ce5d38a4f20b6f0bbf2ef",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='BYtC-0' random-id='7225f906-8fc9-9514-083a-819e2ac16545'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_f_6v&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_e_6r&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_b_2r  &#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_d_5v&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_e_2r&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_a_2v&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_i_5v&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_k_1r&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_d_2r&#92;&quot;},{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_a_3v&#92;&quot;}]&quot;' data-total-rows='118' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;surface&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "gdFf",
+      "code_hash": "09fb3db98b5dd1938b9551f70c6e9953",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"the-6-basic-relations\">The 6 basic relations</h2>\n<span class=\"paragraph\">Text, image, surface each relate to the other two.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "eeIT",
+      "code_hash": "84797d6ff4ea7c73fc325454b64ee557",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"relations-from-surface\">Relations from surface</h3></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "tIqA",
+      "code_hash": "c92448f36c387b3fe0e187524f5118e0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "rPbH",
+      "code_hash": "6fc8f64305eae897bc8e72912393eab8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='rPbH-0' random-id='74ba316f-57b5-2f1b-8d76-004c718cd609'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p67&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;image&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "oxFS",
+      "code_hash": "5fe27e932b838a642d7d31f39a10a1b0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='oxFS-0' random-id='b1973b17-28e9-8c69-8c8a-b94bd6c34cb2'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.11&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.9&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.16&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.12&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.15&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.7&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.10&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.8&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.14&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.13&#92;&quot;}]&quot;' data-total-rows='11' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;passage&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "uquu",
+      "code_hash": "f3d4df2dcfaa8f880e2ff94854f7e6b6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"relations-from-image\">Relations from image</h3></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "eVjD",
+      "code_hash": "8bc1f3aa694504c979876a31105a5f40",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ItOf",
+      "code_hash": "abce833211e61fb6b1435d804b499546",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ItOf-0' random-id='a623e6d0-4763-a2b3-d8af-e7f86d25599e'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_e_1r&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;surface&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "oSkL",
+      "code_hash": "885d1b7a87e5eb16c7b8080b8d4e0fb1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='oSkL-0' random-id='028791e3-756b-46ac-41a8-8499ce026bf4'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.12&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.17&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.16&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.13&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.10&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.8&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.9&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.11&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.15&#92;&quot;},{&#92;&quot;passage&#92;&quot;:&#92;&quot;urn:cts:compnov:bible.genesis.sept_latin:21.14&#92;&quot;}]&quot;' data-total-rows='11' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;passage&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ODkU",
+      "code_hash": "dbb1f87302666e674e07bd49b87131df",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"relations-from-text-passage\">Relations from text passage</h3></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "fycT",
+      "code_hash": "cfd734012c0592dd7d043d533f9f6877",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "NLgP",
+      "code_hash": "fe74c018231ff4d1a865cc1d688543b4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='NLgP-0' random-id='e25ec2c5-589e-2b91-b87f-769827778745'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;surface&#92;&quot;:&#92;&quot;urn:cite2:complut:pages.bne:vol1_e_1r&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;surface&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "UtVP",
+      "code_hash": "0e312e16b5f3f5a8d308af8772e32612",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='UtVP-0' random-id='a5962930-0ac0-fc20-2ac4-098c83410384'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;image&#92;&quot;:&#92;&quot;urn:cite2:citebne:complutensian.v1:v1p67@0.06978,0.06165,0.2849,0.06537&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;image&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "rucW",
+      "code_hash": "eceb8ac7ad49c68a8d4619153ce16dd1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<br/><br/><br/><br/><br/><br/><br/><br/><br/><hr/>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "084033d5a1d41a0bea2af94977d8c71e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"load-data\">Load data</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "de42d569f721b162b9ac48109f48a3a5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "05350981a2d85113b0f66e2f817f92cc",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "0eebbfbc89517647a3280b124a70cb5a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "60c54d2cea86207635ea7fa1a878dd0d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "f7a5251708e34ecf92679c92a4227f81",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "7d6ab01240b3fe02d65ac72fb627ebdc",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Imports</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "6ae2a68098da92669ddca908f157031f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+passagecomponent_re = r":[^:]*$"
