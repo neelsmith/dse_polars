@@ -1,0 +1,7 @@
+[project]
+name = "dse_polars"
+version = "0.0.1"
+description = "A Python library for working with DSE triples in a polars dataframe."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
