@@ -7,7 +7,7 @@ class CitableIIIFService:
     extension: str
 
 def urn2info_url(urn: str,srvc: CitableIIIFService):
-    speclabel,spectype,ns,collection,objectcomponent =  u.split(":")
+    speclabel,spectype,ns,collection,objectcomponent = urn.split(":")
     collectionid, collectionversion = collection.split(".")
     return srvc.urlbase + ns + "/" + collectionid + "/" + collectionversion + "/" + objectcomponent + "." + srvc.extension + "/info.json"
 
