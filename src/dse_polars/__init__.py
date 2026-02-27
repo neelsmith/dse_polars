@@ -14,7 +14,8 @@ from .urnutils import passagecomponent_re
 __all__ = ["DSE", 
            "DSEPassages",
            "ctsurn_contains",
-           "drop_subref",        
+           "drop_subref",  
+                 
            "CitableIIIFService",
            "urn2info_url",
            "info_url2urn",
