@@ -8,6 +8,7 @@ from dse_polars.images import (
     rois,
     roi,
     strip_roi,
+    urn2image_url,
     urn2info_url,
 )
 
@@ -31,6 +32,36 @@ def test_urn2info_url(iiif_service: CitableIIIFService):
     expected = (
         "https://images.example.org/iiif/hmt/vaimg/2017a/"
         "VA012RN_0013.jpg/info.json"
+    )
+    assert actual == expected
+
+
+def test_urn2image_url_without_roi(iiif_service: CitableIIIFService):
+    urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013"
+    actual = urn2image_url(urn, iiif_service)
+    expected = (
+        "https://images.example.org/iiif/hmt/vaimg/2017a/"
+        "VA012RN_0013.jpg/full/full/0/default.jpg"
+    )
+    assert actual == expected
+
+
+def test_urn2image_url_with_roi_uses_region(iiif_service: CitableIIIFService):
+    urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013@10,20,30,40"
+    actual = urn2image_url(urn, iiif_service)
+    expected = (
+        "https://images.example.org/iiif/hmt/vaimg/2017a/"
+        "VA012RN_0013.jpg/10,20,30,40/full/0/default.jpg"
+    )
+    assert actual == expected
+
+
+def test_urn2image_url_malformed_roi_falls_back_to_full(iiif_service: CitableIIIFService):
+    urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013@10,20,30"
+    actual = urn2image_url(urn, iiif_service)
+    expected = (
+        "https://images.example.org/iiif/hmt/vaimg/2017a/"
+        "VA012RN_0013@10,20,30.jpg/full/full/0/default.jpg"
     )
     assert actual == expected
 
