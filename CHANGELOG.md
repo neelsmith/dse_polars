@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- `DSEPassages` class and `ctsur_contains` function
+- `DSEPassages` class and `ctsur_contains` functions
 - `CitableIIIFService` class and `urn2info_url`, `info_url2urn`, `roi` and `strip_roi` functions
 
 
