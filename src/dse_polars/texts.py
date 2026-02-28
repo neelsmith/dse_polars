@@ -8,6 +8,9 @@ class DSEPassages:
             "text": pl.String
         })
 
+def textcontents(df: pl.DataFrame) -> list[str]:
+    "Return a python list of all text contents in the dataframe, as strings."
+    return df.select("text").filter(pl.col("text").is_not_null()).to_series().to_list()
 
 # urn:cts:compnov:bible.genesis.sept_latin:1.1
 # urn:cts:compnov:bible.genesis.targum_latin:1.1

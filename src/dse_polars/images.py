@@ -18,6 +18,11 @@ def info_url2urn(url: str, srvc: CitableIIIFService):
     objid = imgid.removesuffix(suffix)
     return  "urn:cite2:" + ns + ":" + coll + "." + vers  + ":" + objid
 
+def rois(df: pl.DataFrame):
+    "Return a python list of all ROIs in the dataframe, as strings."
+    return df.select("roi").filter(pl.col("roi").is_not_null()).to_series().to_list()
+
+
 
 def roi(imgurn: pl.Expr | str) -> pl.Expr:
     "Polars expression to extract the ROI from an image URN, or empty string if no ROI."
@@ -29,3 +34,15 @@ def strip_roi(imgurn: pl.Expr | str) -> pl.Expr:
     "Polars expression to strip the ROI from an image URN, returning the base URN."
     expr = imgurn if isinstance(imgurn, pl.Expr) else pl.lit(imgurn)
     return expr.str.replace(r"@.*", "")
+
+
+def ptinrect(x: float |  pl.Expr, y: float | pl.Expr) -> pl.Expr:
+    "Polars expression to check if a point (x,y) is inside a rectangle defined by columns x,y,w,h; bounds are inclusive and null rectangle values evaluate to False."
+    x_expr = x if isinstance(x, pl.Expr) else pl.lit(x)
+    y_expr = y if isinstance(y, pl.Expr) else pl.lit(y)
+    return (
+        (x_expr >= pl.col("x"))
+        & (x_expr <= (pl.col("x") + pl.col("w")))
+        & (y_expr >= pl.col("y"))
+        & (y_expr <= (pl.col("y") + pl.col("h")))
+    ).fill_null(False)

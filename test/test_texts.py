@@ -1,7 +1,7 @@
 import polars as pl
 import pytest
 
-from dse_polars.texts import ctsurn_contains
+from dse_polars.texts import ctsurn_contains, textcontents
 
 
 def _eval_expr(u1: str, u2: str) -> bool:
@@ -84,3 +84,31 @@ def test_ctsurn_contains_literal_inputs_in_select():
     ).item(0, 0)
 
     assert actual is True
+
+
+def test_textcontents_filters_nulls_preserves_order_and_duplicates():
+    df = pl.DataFrame(
+        {
+            "urn": ["u1", "u2", "u3", "u4", "u5"],
+            "text": ["alpha", None, "beta", "alpha", None],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = textcontents(df)
+
+    assert actual == ["alpha", "beta", "alpha"]
+
+
+def test_textcontents_returns_empty_list_when_all_null():
+    df = pl.DataFrame(
+        {
+            "urn": ["u1", "u2"],
+            "text": [None, None],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = textcontents(df)
+
+    assert actual == []
