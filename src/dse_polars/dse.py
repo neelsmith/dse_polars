@@ -60,19 +60,19 @@ class DSE:
     # Inventory functions:
     def surfaces(self):
         "Find unique list of surface references."
-        return self.df.select("surface").unique()
+        return self.df.select("surface").unique(maintain_order=True)
 
     def images(self):
         "Find unique list of image references after dropping ROI values)."
         wholeimages = self.df.select(pl.col("wholeimage").alias("image"))
-        return wholeimages.unique()
+        return wholeimages.unique(maintain_order=True)
     
     def texts(self):
         "Find unique list of passage references after dropping subrefs and matching to standard format."
         texturns = self.df.with_columns(
             droppassage_expr().alias("passage")
         ).select("passage")
-        return texturns.unique()
+        return texturns.unique(maintain_order=True)
     
 
     #
@@ -87,7 +87,7 @@ class DSE:
         "Find unique list of surface references for a given image."
         normalized_image = image.split("@", 1)[0]
         surfaces = self.df.filter(pl.col("wholeimage") == normalized_image).select("surface")
-        return surfaces.unique()
+        return surfaces.unique(maintain_order=True)
 
     def surfacesforpassage(self, passage):
         "Find surface references for a given passage."
@@ -112,11 +112,11 @@ class DSE:
     def wholeimagesforsurface(self, surface):
         "Find unique list of whole image references for a given surface."
         wholeimages = self.df.filter(pl.col("surface") == surface).select("wholeimage")
-        return wholeimages.unique()   
+        return wholeimages.unique(maintain_order=True)
     def wholeimagesforpassage(self, passage):
         "Find unique list of whole image references for a given passage."
         wholeimages = self.df.filter(pl.col("passage") == passage).select("wholeimage")
-        return wholeimages.unique()       
+        return wholeimages.unique(maintain_order=True)
     
     #P for S
     #P for I
@@ -124,7 +124,7 @@ class DSE:
         "Find unique list of passage references for a given surface."
         passages = self.df.filter(pl.col("surface") == surface).with_columns(
             pl.col("passage")).select("passage")
-        return passages.unique()
+        return passages.unique(maintain_order=True)
     
     def passagesforimage(self, image):
         "Find unique list of passage references for a given image."
