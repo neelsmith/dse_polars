@@ -7,7 +7,7 @@ except PackageNotFoundError:
     __version__ = "unknown"
 
 from .dse import DSE
-from .texts import DSEPassages, ctsurn_contains
+from .texts import DSEPassages, ctsurn_contains, textcontents
 from .images import CitableIIIFService, urn2info_url, info_url2urn, roi, strip_roi, ptinrect, rois, urn2image_url
 from .urnutils import passagecomponent_re
 
@@ -15,7 +15,8 @@ __all__ = ["DSE",
            "passagecomponent_re",
            "DSEPassages",
            "ctsurn_contains",
-         
+            "textcontents",
+
                  
            "CitableIIIFService",
            "urn2info_url",
