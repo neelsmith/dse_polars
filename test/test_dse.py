@@ -18,7 +18,7 @@ def _load_df(path: Path) -> pl.DataFrame:
     return pl.read_csv(path, separator="|")
 
 def _assert_same_values(actual: pl.DataFrame, expected: pl.DataFrame, column: str) -> None:
-    assert set(actual[column].to_list()) == set(expected[column].to_list())
+    assert actual[column].to_list() == expected[column].to_list()
 
 
 def test_init_adds_image_part_columns():
@@ -68,7 +68,7 @@ def test_surfaces(path: Path):
     df = _load_df(path)
     dse = DSE(df)
     actual = dse.surfaces()
-    expected = df.select("surface").unique()
+    expected = df.select("surface").unique(maintain_order=True)
     _assert_same_values(actual, expected, "surface")
 
 @pytest.mark.parametrize("path", DATA_FILES, ids=[p.name for p in DATA_FILES])
@@ -79,7 +79,7 @@ def test_images_drops_roi(path: Path):
     expected = (
         df.with_columns(pl.col("image").str.replace(r"@.*", "").alias("image"))
         .select("image")
-        .unique()
+        .unique(maintain_order=True)
     )
     _assert_same_values(actual, expected, "image")
 
@@ -91,7 +91,7 @@ def test_texts_drops_passage_component(path: Path):
     expected = (
         df.with_columns(pl.col("passage").str.replace(passagecomponent_re, ":").alias("passage"))
         .select("passage")
-        .unique()
+        .unique(maintain_order=True)
     )
     _assert_same_values(actual, expected, "passage")
 
@@ -107,7 +107,7 @@ def test_surfacesforimage_accepts_roi_image(path: Path):
         df.with_columns(pl.col("image").str.replace(r"@.*", "").alias("image"))
         .filter(pl.col("image") == normalized)
         .select("surface")
-        .unique()
+        .unique(maintain_order=True)
     )
     _assert_same_values(actual, expected, "surface")
 
@@ -153,7 +153,7 @@ def test_wholeimagesforsurface(path: Path):
         df.filter(pl.col("surface") == surface)
         .with_columns(pl.col("image").str.replace(r"@.*", "").alias("wholeimage"))
         .select("wholeimage")
-        .unique()
+        .unique(maintain_order=True)
     )
     _assert_same_values(actual, expected, "wholeimage")
 
@@ -169,7 +169,7 @@ def test_wholeimagesforpassage(path: Path):
         df.filter(pl.col("passage") == passage)
         .with_columns(pl.col("image").str.replace(r"@.*", "").alias("wholeimage"))
         .select("wholeimage")
-        .unique()
+        .unique(maintain_order=True)
     )
     _assert_same_values(actual, expected, "wholeimage")
 
@@ -180,7 +180,7 @@ def test_passagesforsurface(path: Path):
     surface = df["surface"][0]
 
     actual = dse.passagesforsurface(surface)
-    expected = df.filter(pl.col("surface") == surface).select("passage").unique()
+    expected = df.filter(pl.col("surface") == surface).select("passage").unique(maintain_order=True)
     _assert_same_values(actual, expected, "passage")
 
 @pytest.mark.parametrize("path", DATA_FILES, ids=[p.name for p in DATA_FILES])
