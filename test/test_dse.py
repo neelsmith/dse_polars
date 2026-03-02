@@ -173,6 +173,52 @@ def test_wholeimagesforpassage(path: Path):
     )
     _assert_same_values(actual, expected, "wholeimage")
 
+
+def test_rectsforsurface_returns_unique_rectangles_in_order():
+    dse = DSE(
+        {
+            "passage": [
+                "urn:cts:foo:bar:1.1",
+                "urn:cts:foo:bar:1.2",
+                "urn:cts:foo:bar:1.3",
+                "urn:cts:foo:bar:1.4",
+            ],
+            "image": [
+                "urn:cite2:img:collection.v1:img1@1,2,3,4",
+                "urn:cite2:img:collection.v1:img2@1,2,3,4",
+                "urn:cite2:img:collection.v1:img3@5,6,7,8",
+                "urn:cite2:img:collection.v1:img4@9,10,11,12",
+            ],
+            "surface": [
+                "urn:cite2:surf:collection.v1:s1",
+                "urn:cite2:surf:collection.v1:s1",
+                "urn:cite2:surf:collection.v1:s1",
+                "urn:cite2:surf:collection.v1:s2",
+            ],
+        }
+    )
+
+    actual = dse.rectsforsurface("urn:cite2:surf:collection.v1:s1")
+
+    assert actual["rect"].to_list() == [
+        {"x": 1.0, "y": 2.0, "w": 3.0, "h": 4.0},
+        {"x": 5.0, "y": 6.0, "w": 7.0, "h": 8.0},
+    ]
+
+
+def test_rectsforsurface_unknown_surface_is_empty():
+    dse = DSE(
+        {
+            "passage": ["urn:cts:foo:bar:1.1"],
+            "image": ["urn:cite2:img:collection.v1:img1@1,2,3,4"],
+            "surface": ["urn:cite2:surf:collection.v1:s1"],
+        }
+    )
+
+    actual = dse.rectsforsurface("urn:cite2:surf:collection.v1:does-not-exist")
+
+    assert actual.height == 0
+
 @pytest.mark.parametrize("path", DATA_FILES, ids=[p.name for p in DATA_FILES])
 def test_passagesforsurface(path: Path):
     df = _load_df(path)

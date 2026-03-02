@@ -8,9 +8,26 @@ class DSEPassages:
             "text": pl.String
         })
 
+def md_passages(df: pl.DataFrame, highlighter = "*") -> list[str]:
+    "Generates a formatted string for each passage in the dataframe consisting of the final passage component of the urn, surrounded by the highlighter string, followed by a space and the text content."
+    rows = (
+        df.select("urn", "text")
+        .filter(pl.col("urn").is_not_null() & pl.col("text").is_not_null())
+        .iter_rows(named=True)
+    )
+    return [
+        f"{highlighter}{row['urn'].rsplit(':', 1)[-1]}{highlighter} {row['text']}"
+        for row in rows
+    ]
+
 def textcontents(df: pl.DataFrame) -> list[str]:
     "Return a python list of all text contents in the dataframe, as strings."
     return df.select("text").filter(pl.col("text").is_not_null()).to_series().to_list()
+
+def ctsurn_containedby(u1: pl.Expr | str, u2: pl.Expr | str) -> pl.Expr:
+    "Inverse of ctsurn_contains: true if u1 is contained by u2 as a CTS URN."
+    return ctsurn_contains(u2, u1)
+
 
 # urn:cts:compnov:bible.genesis.sept_latin:1.1
 # urn:cts:compnov:bible.genesis.targum_latin:1.1
