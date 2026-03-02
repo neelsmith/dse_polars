@@ -23,11 +23,16 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install
+        run: uv python install 3.13
 
       - name: Build distribution
         # uv build handles both sdist and wheel automatically
         run: uv build
+
+      - name: Validate distributions
+        run: |
+          uv run --with twine twine check dist/*
+          unzip -p dist/*.whl '*.dist-info/WHEEL' | grep -q 'Tag: py3-none-any'
 
       - name: Publish to PyPI
         # This uses the official pypa action which supports OIDC

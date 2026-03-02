@@ -1,6 +1,38 @@
 # dse_polars
 Work with DSE triples in a polars dataframe
 
+## Publishing for marimo HTML-WASM
+
+This package ships as a pure-Python wheel (`py3-none-any`), so it can be installed in
+Pyodide-based marimo HTML-WASM notebooks as long as runtime package constraints are compatible.
+
+Key compatibility choices in this project:
+
+- `Requires-Python: >=3.12,<3.14`
+- `polars>=1.18.0`
+
+Build and publish:
+
+```bash
+python -m pip install -U build twine
+python -m build
+python -m twine check dist/*
+python -m twine upload --repository testpypi dist/*
+python -m twine upload dist/*
+```
+
+You can sanity-check that the wheel is pure Python by inspecting the wheel metadata:
+
+```bash
+unzip -p dist/*.whl '*.dist-info/WHEEL'
+```
+
+and confirming it includes:
+
+```text
+Tag: py3-none-any
+```
+
 ## `ctsurn_contains` usage
 
 `ctsurn_contains` returns a Polars expression, so you can use it directly in `filter`/`select`.
