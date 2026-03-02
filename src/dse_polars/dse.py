@@ -118,6 +118,13 @@ class DSE:
         wholeimages = self.df.filter(pl.col("passage") == passage).select("wholeimage")
         return wholeimages.unique(maintain_order=True)
     
+    def rectsforsurface(self, surface):
+        "Find unique list of rectangles for a given surface."
+        rects = self.df.filter(pl.col("surface") == surface).select(
+            pl.struct(["x", "y", "w", "h"]).alias("rect")
+        )
+        return rects.unique(maintain_order=True)
+    
     #P for S
     #P for I
     def passagesforsurface(self, surface):
