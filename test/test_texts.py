@@ -1,7 +1,13 @@
 import polars as pl
 import pytest
 
-from dse_polars.texts import ctsurn_containedby, ctsurn_contains, md_passages, textcontents
+from dse_polars.texts import (
+    ctsurn_containedby,
+    ctsurn_contains,
+    md_passages,
+    retrieve_leafnode_range,
+    textcontents,
+)
 
 
 def _eval_expr(u1: str, u2: str) -> bool:
@@ -183,3 +189,50 @@ def test_md_passages_allows_custom_highlighter_and_skips_nulls():
     actual = md_passages(df, highlighter="**")
 
     assert actual == ["**1.1** In principio"]
+
+
+def test_retrieve_leafnode_range_filters_rows_between_start_and_end():
+    df = pl.DataFrame(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.10",
+                "urn:cts:compnov:bible.exodus.sept_latin:1.2",
+            ],
+            "text": ["a", "b", "c", "d", "x"],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = retrieve_leafnode_range(df, "urn:cts:compnov:bible.genesis.sept_latin:1.2-1.10")
+
+    assert actual["urn"].to_list() == [
+        "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.10",
+    ]
+
+
+def test_retrieve_leafnode_range_supports_abbreviated_end_value():
+    df = pl.DataFrame(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+                "urn:cts:compnov:bible.genesis.sept_latin:2.1",
+            ],
+            "text": ["a", "b", "c", "d"],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = retrieve_leafnode_range(df, "urn:cts:compnov:bible.genesis.sept_latin:1.1-3")
+
+    assert actual["urn"].to_list() == [
+        "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+    ]
