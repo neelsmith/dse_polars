@@ -69,7 +69,7 @@ class DSE:
         with open(cexfile, encoding="utf-8") as f:
             cex_text = f.read()
         return cls.from_cex_text(cex_text)
-    
+
     @staticmethod
     def get_dse_urns(cex_text: str):
         "Extract DSE URNs from CEX data."

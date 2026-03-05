@@ -8,7 +8,7 @@ Pyodide-based marimo HTML-WASM notebooks as long as runtime package constraints 
 
 Key compatibility choices in this project:
 
-- `Requires-Python: >=3.12,<3.14`
+- `Requires-Python: >=3.13,<3.14`
 - `polars>=1.18.0`
 
 Build and publish:
