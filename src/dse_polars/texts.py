@@ -1,12 +1,106 @@
 import polars as pl
+import re
 
 class DSEPassages:
     def __init__(self, data):
         "Enforce DSE schema for dataframe."
-        self.df = pl.DataFrame(data, schema={
+        base_df = pl.DataFrame(data, schema={
             "urn": pl.String,
             "text": pl.String
         })
+
+        urn_parts = pl.col("urn").str.split_exact(":", 4)
+        work_parts = urn_parts.struct.field("field_3").str.split_exact(".", 2)
+
+        self.df = base_df.with_columns(
+            urn_parts.struct.field("field_4").alias("passageref"),
+            work_parts.struct.field("field_0").alias("group"),
+            work_parts.struct.field("field_1").alias("work"),
+            work_parts.struct.field("field_2").alias("version"),
+        )
+
+
+def retrieve_leafnode_range(df: pl.DataFrame, urn: str) -> pl.DataFrame:
+    "Return a dataframe containing all rows whose URN falls between the first and last values of a range urn."
+    if "urn" not in df.columns:
+        raise ValueError("DataFrame must include an 'urn' column.")
+
+    if "-" not in urn:
+        return df.filter(pl.col("urn") == urn)
+
+    def split_urn_parts(value: str) -> tuple[str, str]:
+        base, sep, passage = value.rpartition(":")
+        if not sep:
+            raise ValueError(f"Invalid CTS URN: {value}")
+        return base, passage
+
+    def normalize_range_end(start_passage: str, end_passage: str) -> str:
+        if "." not in start_passage or "." in end_passage:
+            return end_passage
+
+        start_parts = start_passage.split(".")
+        end_parts = end_passage.split(".")
+        if len(end_parts) >= len(start_parts):
+            return end_passage
+
+        borrowed = start_parts[: len(start_parts) - len(end_parts)]
+        return ".".join([*borrowed, *end_parts])
+
+    def token_key(token: str) -> tuple:
+        pieces = re.findall(r"\d+|\D+", token)
+        keyed: list[tuple[int, int | str]] = []
+        for piece in pieces:
+            if piece.isdigit():
+                keyed.append((0, int(piece)))
+            else:
+                keyed.append((1, piece))
+        return tuple(keyed)
+
+    def passage_key(passage: str) -> tuple:
+        return tuple(token_key(part) for part in passage.split("."))
+
+    range_base, range_passage = split_urn_parts(urn)
+    start_passage, end_component = range_passage.split("-", 1)
+    if not start_passage or not end_component:
+        raise ValueError(f"Invalid CTS range URN: {urn}")
+
+    if end_component.startswith("urn:"):
+        end_base, end_passage = split_urn_parts(end_component)
+    else:
+        end_base = range_base
+        end_passage = normalize_range_end(start_passage, end_component)
+
+    if end_base != range_base:
+        raise ValueError("Range URN start and end must have the same work component.")
+
+    start_key = passage_key(start_passage)
+    end_key = passage_key(end_passage)
+
+    if start_key > end_key:
+        start_key, end_key = end_key, start_key
+
+    urn_values = df.get_column("urn").to_list()
+    mask = []
+    for row_urn in urn_values:
+        if row_urn is None:
+            mask.append(False)
+            continue
+        try:
+            row_base, row_passage = split_urn_parts(row_urn)
+        except ValueError:
+            mask.append(False)
+            continue
+
+        if row_base != range_base:
+            mask.append(False)
+            continue
+
+        row_key = passage_key(row_passage)
+        mask.append(start_key <= row_key <= end_key)
+
+    return df.filter(pl.Series("_mask", mask))
+
+
 
 def md_passages(df: pl.DataFrame, highlighter = "*") -> list[str]:
     "Generates a formatted string for each passage in the dataframe consisting of the final passage component of the urn, surrounded by the highlighter string, followed by a space and the text content."

@@ -1,6 +1,8 @@
 
 #from copy import replace
 import polars as pl
+import itertools
+from cite_exchange import CexBlock
 
 from .urnutils import passagecomponent_re
 
@@ -14,11 +16,17 @@ class DSE:
         })
 
         parts = pl.col("image").str.split_exact("@", 1)
+        passage_parts = pl.col("passage").str.split_exact(":", 4)
+        passage_work_parts = passage_parts.struct.field("field_3").str.split_exact(".", 2)
         roi_parts = pl.col("roi").str.split_exact(",", 3)
         try:
             self.df = base_df.with_columns(
                 parts.struct.field("field_0").alias("wholeimage"),
-                parts.struct.field("field_1").alias("roi")
+                parts.struct.field("field_1").alias("roi"),
+                passage_parts.struct.field("field_4").alias("passageref"),
+                passage_work_parts.struct.field("field_0").alias("group"),
+                passage_work_parts.struct.field("field_1").alias("work"),
+                passage_work_parts.struct.field("field_2").alias("version"),
             ).with_columns(
                 pl.when(pl.col("roi").is_not_null())
                 .then(roi_parts.struct.field("field_0").cast(pl.Float64, strict=True))
@@ -56,7 +64,54 @@ class DSE:
                 "Invalid ROI in image value: ROI must have four comma-separated numeric values (x,y,w,h)."
             )
 
+    @classmethod
+    def from_cex_file(cls, cexfile: str):
+        with open(cexfile, encoding="utf-8") as f:
+            cex_text = f.read()
+        return cls.from_cex_text(cex_text)
     
+    @staticmethod
+    def get_dse_urns(cex_text: str):
+        "Extract DSE URNs from CEX data."
+        modelurn = "urn:cite2:cite:datamodels.v1:dsemodel"
+        modelblocks = CexBlock.from_text(cex_text, label = "datamodels")
+        nested = [dm.data for dm in modelblocks]
+        flattened = list(itertools.chain.from_iterable(nested) )
+        dsecollections = [row for row in flattened if modelurn in row]
+        dseurns = [row.split("|")[0] for row in dsecollections]
+        return dseurns
+    
+
+    @classmethod
+    def from_cex_text(cls, cex_text: str):
+        "Create DSE from CEX data."
+        dseurns = cls.get_dse_urns(cex_text)
+
+        allrelationblocks = CexBlock.from_text(cex_text, label = "citerelationset")
+        dseblocks = [blk.data[3:] for blk in allrelationblocks if blk.data[0].replace('urn|','') in dseurns]
+        flattened = list(itertools.chain.from_iterable(dseblocks))
+        rows = [row for row in flattened if row.strip()]
+
+        if not rows:
+            return cls({"passage": [], "image": [], "surface": []})
+
+        parsed_rows = []
+        for row in rows:
+            columns = row.split("|")
+            if len(columns) != 3:
+                raise ValueError(
+                    "Invalid DSE relation row in CEX: expected 3 pipe-delimited fields (passage|image|surface)."
+                )
+            parsed_rows.append(columns)
+
+        dse_df = pl.DataFrame(parsed_rows, schema=["passage", "image", "surface"], orient="row")
+        return cls(dse_df)
+    
+
+
+        
+
+
     # Inventory functions:
     def surfaces(self):
         "Find unique list of surface references."

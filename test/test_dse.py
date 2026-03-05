@@ -14,6 +14,56 @@ DATA_FILES = [
 ]
 
 
+def test_from_cex_text_builds_polars_dataframe_from_relationset():
+    cex_text = """#!datamodels
+Collection|Model|Label|Description
+urn:cite2:demo:dse.v1:all|urn:cite2:cite:datamodels.v1:dsemodel|Demo DSE|Demo DSE collection
+
+#!citerelationset
+urn|urn:cite2:demo:dse.v1:all
+label|Demo relations
+passage|imageroi|surface
+urn:cts:demo:text.v1:1.1|urn:cite2:demo:images.v1:img1@1,2,3,4|urn:cite2:demo:surfaces.v1:s1
+urn:cts:demo:text.v1:1.2|urn:cite2:demo:images.v1:img2@5,6,7,8|urn:cite2:demo:surfaces.v1:s2
+"""
+
+    dse = DSE.from_cex_text(cex_text)
+
+    expected = {
+        "passage": [
+            "urn:cts:demo:text.v1:1.1",
+            "urn:cts:demo:text.v1:1.2",
+        ],
+        "image": [
+            "urn:cite2:demo:images.v1:img1@1,2,3,4",
+            "urn:cite2:demo:images.v1:img2@5,6,7,8",
+        ],
+        "surface": [
+            "urn:cite2:demo:surfaces.v1:s1",
+            "urn:cite2:demo:surfaces.v1:s2",
+        ],
+    }
+    assert dse.df.select(["passage", "image", "surface"]).to_dict(as_series=False) == expected
+    assert dse.df["x"].to_list() == [1.0, 5.0]
+
+
+def test_from_cex_text_returns_empty_dse_when_no_dse_model_present():
+    cex_text = """#!datamodels
+Collection|Model|Label|Description
+urn:cite2:demo:comments.v1:all|urn:cite2:cite:datamodels.v1:commentarymodel|Demo comments|Demo commentary collection
+
+#!citerelationset
+urn|urn:cite2:demo:comments.v1:all
+label|Demo commentary relations
+passage|comment|source
+urn:cts:demo:text.v1:1.1|urn:cts:demo:commentary.v1:1.1|urn:cite2:demo:sources.v1:s1
+"""
+
+    dse = DSE.from_cex_text(cex_text)
+
+    assert dse.df.height == 0
+
+
 def _load_df(path: Path) -> pl.DataFrame:
     return pl.read_csv(path, separator="|")
 
@@ -30,7 +80,25 @@ def test_init_adds_image_part_columns():
         }
     )
 
-    assert dse.df.columns == ["passage", "image", "surface", "wholeimage", "roi", "x", "y", "w", "h"]
+    assert dse.df.columns == [
+        "passage",
+        "image",
+        "surface",
+        "wholeimage",
+        "roi",
+        "passageref",
+        "group",
+        "work",
+        "version",
+        "x",
+        "y",
+        "w",
+        "h",
+    ]
+    assert dse.df["passageref"].to_list() == ["1.1", "1.2"]
+    assert dse.df["group"].to_list() == ["bar", "bar"]
+    assert dse.df["work"].to_list() == [None, None]
+    assert dse.df["version"].to_list() == [None, None]
     assert dse.df["wholeimage"].to_list() == [
         "urn:cite2:img:collection.v1:img1",
         "urn:cite2:img:collection.v1:img2",
@@ -40,6 +108,21 @@ def test_init_adds_image_part_columns():
     assert dse.df["y"].to_list() == [20.0, None]
     assert dse.df["w"].to_list() == [30.0, None]
     assert dse.df["h"].to_list() == [40.0, None]
+
+
+def test_init_adds_passage_part_columns_for_three_part_work_component():
+    dse = DSE(
+        {
+            "passage": ["urn:cts:compnov:bible.genesis.sept_latin:1.1"],
+            "image": ["urn:cite2:img:collection.v1:img1@10,20,30,40"],
+            "surface": ["urn:cite2:surf:collection.v1:s1"],
+        }
+    )
+
+    assert dse.df["passageref"].to_list() == ["1.1"]
+    assert dse.df["group"].to_list() == ["bible"]
+    assert dse.df["work"].to_list() == ["genesis"]
+    assert dse.df["version"].to_list() == ["sept_latin"]
 
 
 def test_init_rejects_roi_with_wrong_arity():

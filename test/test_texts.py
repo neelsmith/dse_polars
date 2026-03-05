@@ -1,12 +1,37 @@
 import polars as pl
 import pytest
 
-from dse_polars.texts import ctsurn_containedby, ctsurn_contains, md_passages, textcontents
+from dse_polars.texts import (
+    DSEPassages,
+    ctsurn_containedby,
+    ctsurn_contains,
+    md_passages,
+    retrieve_leafnode_range,
+    textcontents,
+)
 
 
 def _eval_expr(u1: str, u2: str) -> bool:
     df = pl.DataFrame({"u1": [u1], "u2": [u2]})
     return df.select(ctsurn_contains(pl.col("u1"), pl.col("u2")).alias("ok")).item(0, 0)
+
+
+def test_dsepassages_init_expands_urn_parts_to_columns():
+    passages = DSEPassages(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis:2.3",
+            ],
+            "text": ["In principio", "Terra autem"],
+        }
+    )
+
+    assert passages.df.columns == ["urn", "text", "passageref", "group", "work", "version"]
+    assert passages.df["passageref"].to_list() == ["1.1", "2.3"]
+    assert passages.df["group"].to_list() == ["bible", "bible"]
+    assert passages.df["work"].to_list() == ["genesis", "genesis"]
+    assert passages.df["version"].to_list() == ["sept_latin", None]
 
 
 @pytest.mark.parametrize(
@@ -183,3 +208,50 @@ def test_md_passages_allows_custom_highlighter_and_skips_nulls():
     actual = md_passages(df, highlighter="**")
 
     assert actual == ["**1.1** In principio"]
+
+
+def test_retrieve_leafnode_range_filters_rows_between_start_and_end():
+    df = pl.DataFrame(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.10",
+                "urn:cts:compnov:bible.exodus.sept_latin:1.2",
+            ],
+            "text": ["a", "b", "c", "d", "x"],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = retrieve_leafnode_range(df, "urn:cts:compnov:bible.genesis.sept_latin:1.2-1.10")
+
+    assert actual["urn"].to_list() == [
+        "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.10",
+    ]
+
+
+def test_retrieve_leafnode_range_supports_abbreviated_end_value():
+    df = pl.DataFrame(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+                "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+                "urn:cts:compnov:bible.genesis.sept_latin:2.1",
+            ],
+            "text": ["a", "b", "c", "d"],
+        },
+        schema={"urn": pl.String, "text": pl.String},
+    )
+
+    actual = retrieve_leafnode_range(df, "urn:cts:compnov:bible.genesis.sept_latin:1.1-3")
+
+    assert actual["urn"].to_list() == [
+        "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.2",
+        "urn:cts:compnov:bible.genesis.sept_latin:1.3",
+    ]
