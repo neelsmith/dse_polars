@@ -3,13 +3,10 @@ import pytest
 
 from dse_polars.images import (
     CitableIIIFService,
-    info_url2urn,
     ptinrect,
     rois,
     roi,
     strip_roi,
-    urn2image_url,
-    urn2info_url,
 )
 
 
@@ -28,7 +25,7 @@ def test_citable_iiif_service_dataclass_fields(iiif_service: CitableIIIFService)
 
 def test_urn2info_url(iiif_service: CitableIIIFService):
     urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013"
-    actual = urn2info_url(urn, iiif_service)
+    actual = iiif_service.urn2info_url(urn)
     expected = (
         "https://images.example.org/iiif/hmt/vaimg/2017a/"
         "VA012RN_0013.jpg/info.json"
@@ -38,7 +35,7 @@ def test_urn2info_url(iiif_service: CitableIIIFService):
 
 def test_urn2image_url_without_roi(iiif_service: CitableIIIFService):
     urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013"
-    actual = urn2image_url(urn, iiif_service)
+    actual = iiif_service.urn2image_url(urn)
     expected = (
         "https://images.example.org/iiif/hmt/vaimg/2017a/"
         "VA012RN_0013.jpg/full/full/0/default.jpg"
@@ -48,7 +45,7 @@ def test_urn2image_url_without_roi(iiif_service: CitableIIIFService):
 
 def test_urn2image_url_with_roi_uses_region(iiif_service: CitableIIIFService):
     urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013@10,20,30,40"
-    actual = urn2image_url(urn, iiif_service)
+    actual = iiif_service.urn2image_url(urn)
     expected = (
         "https://images.example.org/iiif/hmt/vaimg/2017a/"
         "VA012RN_0013.jpg/10,20,30,40/full/0/default.jpg"
@@ -58,7 +55,7 @@ def test_urn2image_url_with_roi_uses_region(iiif_service: CitableIIIFService):
 
 def test_urn2image_url_malformed_roi_falls_back_to_full(iiif_service: CitableIIIFService):
     urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013@10,20,30"
-    actual = urn2image_url(urn, iiif_service)
+    actual = iiif_service.urn2image_url(urn)
     expected = (
         "https://images.example.org/iiif/hmt/vaimg/2017a/"
         "VA012RN_0013@10,20,30.jpg/full/full/0/default.jpg"
@@ -68,14 +65,14 @@ def test_urn2image_url_malformed_roi_falls_back_to_full(iiif_service: CitableIII
 
 def test_info_url2urn(iiif_service: CitableIIIFService):
     url = "https://images.example.org/iiif/hmt/vaimg/2017a/VA012RN_0013.jpg/info.json"
-    actual = info_url2urn(url, iiif_service)
+    actual = iiif_service.info_url2urn(url)
     assert actual == "urn:cite2:hmt:vaimg.2017a:VA012RN_0013"
 
 
 def test_urn_info_url_round_trip(iiif_service: CitableIIIFService):
     urn = "urn:cite2:hmt:vaimg.2017a:VA012RN_0013"
-    url = urn2info_url(urn, iiif_service)
-    assert info_url2urn(url, iiif_service) == urn
+    url = iiif_service.urn2info_url(urn)
+    assert iiif_service.info_url2urn(url) == urn
 
 
 @pytest.mark.parametrize(
