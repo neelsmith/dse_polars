@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 05.1 - 2026-03-04
+
+## 0.6.0 - 2026-03-05
+
+### Changed
+
+- Moved `urn2image_url`, `urn2info_url`, and `info_url2urn` from module-level functions to instance methods on `CitableIIIFService`.
+- Updated internal tests and call sites to use method-based calls on an instantiated service object.
+
+### Breaking changes
+
+- Removed package-level exports of `urn2image_url`, `urn2info_url`, and `info_url2urn`; use `CitableIIIFService(...).urn2image_url(...)`, `CitableIIIFService(...).urn2info_url(...)`, and `CitableIIIFService(...).info_url2urn(...)` instead.
+
+
+
+
+## 0.5.1 - 2026-03-04
 
 ## Fixed
 

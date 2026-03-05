@@ -6,41 +6,52 @@ class CitableIIIFService:
     urlbase: str
     extension: str
 
-def urn2image_url(urn: str,srvc: CitableIIIFService) -> str:
-    "Form a IIIF image request URL from a CITE2 URN and a CitableIIIFService."
-    base_urn = urn
-    region = "full"
+    def urn2image_url(self, urn: str) -> str:
+        "Form a IIIF image request URL from a CITE2 URN."
+        base_urn = urn
+        region = "full"
 
-    parts = urn.rsplit("@", 1)
-    if len(parts) == 2:
-        candidate_region = parts[1]
-        region_parts = candidate_region.split(",")
-        if len(region_parts) == 4 and all(part != "" for part in region_parts):
-            base_urn = parts[0]
-            region = candidate_region
+        parts = urn.rsplit("@", 1)
+        if len(parts) == 2:
+            candidate_region = parts[1]
+            region_parts = candidate_region.split(",")
+            if len(region_parts) == 4 and all(part != "" for part in region_parts):
+                base_urn = parts[0]
+                region = candidate_region
 
-    return urn2info_url(base_urn, srvc).replace(
-        "/info.json", f"/{region}/full/0/default.{srvc.extension}"
-    )
+        return self.urn2info_url(base_urn).replace(
+            "/info.json", f"/{region}/full/0/default.{self.extension}"
+        )
+
+    def urn2info_url(self, urn: str) -> str:
+        _, _, ns, collection, objectcomponent = urn.split(":")
+        collectionid, collectionversion = collection.split(".")
+        return (
+            self.urlbase
+            + ns
+            + "/"
+            + collectionid
+            + "/"
+            + collectionversion
+            + "/"
+            + objectcomponent
+            + "."
+            + self.extension
+            + "/info.json"
+        )
+
+    def info_url2urn(self, url: str) -> str:
+        strip1 = url.replace(self.urlbase, "")
+        ns, coll, vers, imgid, _ = strip1.split("/")
+        suffix = f".{self.extension}"
+        objid = imgid.removesuffix(suffix)
+        return "urn:cite2:" + ns + ":" + coll + "." + vers + ":" + objid
 
 
-def urn2info_url(urn: str,srvc: CitableIIIFService) -> str:
-    speclabel,spectype,ns,collection,objectcomponent = urn.split(":")
-    collectionid, collectionversion = collection.split(".")
-    return srvc.urlbase + ns + "/" + collectionid + "/" + collectionversion + "/" + objectcomponent + "." + srvc.extension + "/info.json"
-
-def info_url2urn(url: str, srvc: CitableIIIFService) -> str:
-    strip1 = url.replace(srvc.urlbase,"")
-    ns,coll,vers,imgid,junk = strip1.split("/")
-    suffix = f".{srvc.extension}"
-    objid = imgid.removesuffix(suffix)
-    return  "urn:cite2:" + ns + ":" + coll + "." + vers  + ":" + objid
 
 def rois(df: pl.DataFrame):
     "Return a python list of all ROIs in the dataframe, as strings."
     return df.select("roi").filter(pl.col("roi").is_not_null()).to_series().to_list()
-
-
 
 def roi(imgurn: pl.Expr | str) -> pl.Expr:
     "Polars expression to extract the ROI from an image URN, or empty string if no ROI."
