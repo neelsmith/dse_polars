@@ -1,6 +1,15 @@
 version = 1
 revision = 3
-requires-python = ">=3.12, <3.14"
+requires-python = "==3.13.*"
+
+[[package]]
+name = "cite-exchange"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/fa/dc91068e949335ebb4b3f03debf687d39b017834f02134384b2bcf6d2ac9/cite_exchange-0.3.0.tar.gz", hash = "sha256:7252dcc4eb80aa2d49b473c53d75bd08b345d4bb5a7cfdfdfff0e8ff16a2a51d", size = 26668, upload-time = "2026-03-03T00:03:18.067Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/65/e7/d29146d6ed44b633401f2b5b789d9afeca17680c01865e2e0d956adf05c5/cite_exchange-0.3.0-py3-none-any.whl", hash = "sha256:2ee90234b43a977984cf58b4c50d8d8d179553cca809a2ed827e1c5ea2aab269", size = 17266, upload-time = "2026-03-03T00:03:16.474Z" },
+]
 
 [[package]]
 name = "colorama"
@@ -13,9 +22,10 @@ wheels = [
 
 [[package]]
 name = "dse-polars"
-version = "0.5.0"
+version = "0.5.1"
 source = { editable = "." }
 dependencies = [
+    { name = "cite-exchange" },
     { name = "polars" },
 ]
 
@@ -31,6 +41,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cite-exchange", specifier = ">=0.3.0" },
     { name = "polars", specifier = ">=1.18.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0" },
 ]
