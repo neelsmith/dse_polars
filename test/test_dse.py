@@ -14,6 +14,56 @@ DATA_FILES = [
 ]
 
 
+def test_from_cex_text_builds_polars_dataframe_from_relationset():
+    cex_text = """#!datamodels
+Collection|Model|Label|Description
+urn:cite2:demo:dse.v1:all|urn:cite2:cite:datamodels.v1:dsemodel|Demo DSE|Demo DSE collection
+
+#!citerelationset
+urn|urn:cite2:demo:dse.v1:all
+label|Demo relations
+passage|imageroi|surface
+urn:cts:demo:text.v1:1.1|urn:cite2:demo:images.v1:img1@1,2,3,4|urn:cite2:demo:surfaces.v1:s1
+urn:cts:demo:text.v1:1.2|urn:cite2:demo:images.v1:img2@5,6,7,8|urn:cite2:demo:surfaces.v1:s2
+"""
+
+    dse = DSE.from_cex_text(cex_text)
+
+    expected = {
+        "passage": [
+            "urn:cts:demo:text.v1:1.1",
+            "urn:cts:demo:text.v1:1.2",
+        ],
+        "image": [
+            "urn:cite2:demo:images.v1:img1@1,2,3,4",
+            "urn:cite2:demo:images.v1:img2@5,6,7,8",
+        ],
+        "surface": [
+            "urn:cite2:demo:surfaces.v1:s1",
+            "urn:cite2:demo:surfaces.v1:s2",
+        ],
+    }
+    assert dse.df.select(["passage", "image", "surface"]).to_dict(as_series=False) == expected
+    assert dse.df["x"].to_list() == [1.0, 5.0]
+
+
+def test_from_cex_text_returns_empty_dse_when_no_dse_model_present():
+    cex_text = """#!datamodels
+Collection|Model|Label|Description
+urn:cite2:demo:comments.v1:all|urn:cite2:cite:datamodels.v1:commentarymodel|Demo comments|Demo commentary collection
+
+#!citerelationset
+urn|urn:cite2:demo:comments.v1:all
+label|Demo commentary relations
+passage|comment|source
+urn:cts:demo:text.v1:1.1|urn:cts:demo:commentary.v1:1.1|urn:cite2:demo:sources.v1:s1
+"""
+
+    dse = DSE.from_cex_text(cex_text)
+
+    assert dse.df.height == 0
+
+
 def _load_df(path: Path) -> pl.DataFrame:
     return pl.read_csv(path, separator="|")
 
