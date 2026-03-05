@@ -1,6 +1,6 @@
 [project]
 name = "dse_polars"
-version = "0.6.0"
+version = "0.6.1"
 description = "A Python library for working with digital scholarly editions in polars dataframes."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
