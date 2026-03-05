@@ -4,10 +4,20 @@ import re
 class DSEPassages:
     def __init__(self, data):
         "Enforce DSE schema for dataframe."
-        self.df = pl.DataFrame(data, schema={
+        base_df = pl.DataFrame(data, schema={
             "urn": pl.String,
             "text": pl.String
         })
+
+        urn_parts = pl.col("urn").str.split_exact(":", 4)
+        work_parts = urn_parts.struct.field("field_3").str.split_exact(".", 2)
+
+        self.df = base_df.with_columns(
+            urn_parts.struct.field("field_4").alias("passageref"),
+            work_parts.struct.field("field_0").alias("group"),
+            work_parts.struct.field("field_1").alias("work"),
+            work_parts.struct.field("field_2").alias("version"),
+        )
 
 
 def retrieve_leafnode_range(df: pl.DataFrame, urn: str) -> pl.DataFrame:

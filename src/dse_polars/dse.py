@@ -16,11 +16,17 @@ class DSE:
         })
 
         parts = pl.col("image").str.split_exact("@", 1)
+        passage_parts = pl.col("passage").str.split_exact(":", 4)
+        passage_work_parts = passage_parts.struct.field("field_3").str.split_exact(".", 2)
         roi_parts = pl.col("roi").str.split_exact(",", 3)
         try:
             self.df = base_df.with_columns(
                 parts.struct.field("field_0").alias("wholeimage"),
-                parts.struct.field("field_1").alias("roi")
+                parts.struct.field("field_1").alias("roi"),
+                passage_parts.struct.field("field_4").alias("passageref"),
+                passage_work_parts.struct.field("field_0").alias("group"),
+                passage_work_parts.struct.field("field_1").alias("work"),
+                passage_work_parts.struct.field("field_2").alias("version"),
             ).with_columns(
                 pl.when(pl.col("roi").is_not_null())
                 .then(roi_parts.struct.field("field_0").cast(pl.Float64, strict=True))

@@ -2,6 +2,7 @@ import polars as pl
 import pytest
 
 from dse_polars.texts import (
+    DSEPassages,
     ctsurn_containedby,
     ctsurn_contains,
     md_passages,
@@ -13,6 +14,24 @@ from dse_polars.texts import (
 def _eval_expr(u1: str, u2: str) -> bool:
     df = pl.DataFrame({"u1": [u1], "u2": [u2]})
     return df.select(ctsurn_contains(pl.col("u1"), pl.col("u2")).alias("ok")).item(0, 0)
+
+
+def test_dsepassages_init_expands_urn_parts_to_columns():
+    passages = DSEPassages(
+        {
+            "urn": [
+                "urn:cts:compnov:bible.genesis.sept_latin:1.1",
+                "urn:cts:compnov:bible.genesis:2.3",
+            ],
+            "text": ["In principio", "Terra autem"],
+        }
+    )
+
+    assert passages.df.columns == ["urn", "text", "passageref", "group", "work", "version"]
+    assert passages.df["passageref"].to_list() == ["1.1", "2.3"]
+    assert passages.df["group"].to_list() == ["bible", "bible"]
+    assert passages.df["work"].to_list() == ["genesis", "genesis"]
+    assert passages.df["version"].to_list() == ["sept_latin", None]
 
 
 @pytest.mark.parametrize(

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 05.0 - 2026-03-04
+
+### Added
+
+- `group`, `work`, `version` and `passageref` exposed as columns of `DSE` and `DSEPassages` dataframes for CTS URNs
+- `from_cex_file` and `from_cex_text` allow instantiation of `DSE` objects from complex CEX sources
+
 ## 0.4.0 - 2026-03-02
 
 ### Added

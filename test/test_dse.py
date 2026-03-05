@@ -80,7 +80,25 @@ def test_init_adds_image_part_columns():
         }
     )
 
-    assert dse.df.columns == ["passage", "image", "surface", "wholeimage", "roi", "x", "y", "w", "h"]
+    assert dse.df.columns == [
+        "passage",
+        "image",
+        "surface",
+        "wholeimage",
+        "roi",
+        "passageref",
+        "group",
+        "work",
+        "version",
+        "x",
+        "y",
+        "w",
+        "h",
+    ]
+    assert dse.df["passageref"].to_list() == ["1.1", "1.2"]
+    assert dse.df["group"].to_list() == ["bar", "bar"]
+    assert dse.df["work"].to_list() == [None, None]
+    assert dse.df["version"].to_list() == [None, None]
     assert dse.df["wholeimage"].to_list() == [
         "urn:cite2:img:collection.v1:img1",
         "urn:cite2:img:collection.v1:img2",
@@ -90,6 +108,21 @@ def test_init_adds_image_part_columns():
     assert dse.df["y"].to_list() == [20.0, None]
     assert dse.df["w"].to_list() == [30.0, None]
     assert dse.df["h"].to_list() == [40.0, None]
+
+
+def test_init_adds_passage_part_columns_for_three_part_work_component():
+    dse = DSE(
+        {
+            "passage": ["urn:cts:compnov:bible.genesis.sept_latin:1.1"],
+            "image": ["urn:cite2:img:collection.v1:img1@10,20,30,40"],
+            "surface": ["urn:cite2:surf:collection.v1:s1"],
+        }
+    )
+
+    assert dse.df["passageref"].to_list() == ["1.1"]
+    assert dse.df["group"].to_list() == ["bible"]
+    assert dse.df["work"].to_list() == ["genesis"]
+    assert dse.df["version"].to_list() == ["sept_latin"]
 
 
 def test_init_rejects_roi_with_wrong_arity():
